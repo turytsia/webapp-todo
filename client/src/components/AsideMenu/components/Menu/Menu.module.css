@@ -1,0 +1,8 @@
+.container {
+    min-width: 220px;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    padding: 12px;
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+}

@@ -1,0 +1,11 @@
+.container {
+    /* background-color: var(--color-white); */
+    background-color: #fff;
+    width: 60%;
+    height: 60%;
+    border-radius: var(--border-radius);
+    display: flex;
+    justify-content: stretch;
+    align-items: stretch;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+}

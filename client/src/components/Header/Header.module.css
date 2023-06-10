@@ -1,0 +1,8 @@
+.container{
+    margin: 8px;
+}
+
+.title{
+    color: var(--color-white);
+    font-size: 32px;
+}

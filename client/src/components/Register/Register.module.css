@@ -1,0 +1,9 @@
+.actions {
+    display: flex;
+    justify-content: stretch;
+}
+
+.actions button {
+    padding: 14px;
+    width: 100%;
+}

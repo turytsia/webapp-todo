@@ -1,0 +1,44 @@
+.button,
+.link {
+    cursor: pointer;
+    font-size: 14px;
+    user-select: none;
+    border-radius: var(--border-radius);
+}
+
+.button svg,
+.link svg {
+    font-size: 18px;
+}
+
+.icon {
+    display: flex;
+    justify-content: space-between;
+}
+
+.transparentType {
+    padding: 8px;
+    color: #3f3f3f;
+}
+
+.transparentType.active {
+    color: #2c2c2c;
+    background-color: #dfdfdf;
+}
+
+.transparentType:hover {
+    background-color: var(--color-hover);
+}
+
+.colorType {
+    background-color: #51b0ef;
+    color: white;
+}
+
+.colorType:hover {
+    background-color: #71c6ff;
+}
+
+.boldType {
+    font-weight: 600;
+}

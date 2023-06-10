@@ -1,0 +1,16 @@
+.container{
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.input {
+    border-radius: var(--border-radius);
+    padding: 12px;
+    font-size: 14px;
+    border: 1px solid #a6a6a6;
+}
+
+.label{
+    font-weight: 500;
+}
