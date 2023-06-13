@@ -18,14 +18,9 @@ class IndexView(APIView):
     permission_classes=[IsAuthenticated]
     authentication_classes=[TokenAuthentication]
     def get(self, request):
-        projects = list(Project.objects.all())
-        serializer = ProjectSerializer(data=projects, many=True)
-        print(request.user)
-        if serializer.is_valid():
-            return Response({
-                "projects": serializer.data
-            })
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        projects = Project.objects.all()
+        serializer = ProjectSerializer(projects, many=True)
+        return Response({ "projects": serializer.data })
     
     def post(self, request):
         try:

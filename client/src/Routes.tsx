@@ -10,6 +10,8 @@ import Header from "./components/Header/Header";
 import Login from "./components/Login/Login";
 import AsideMenu from "./components/AsideMenu/AsideMenu";
 import { Register } from "./components/Register/Register";
+import Dashboard from "./components/Dashboard/Dashboard";
+import ProjectForm from "./components/ProjectForm/ProjectForm";
 
 
 const Routes = () => {
@@ -33,12 +35,12 @@ const Routes = () => {
         <Router>
           <Route path="/" element={
             <WithToken>
-              <Home />
+              <Dashboard />
             </WithToken>
           } />
           <Route path="/projects/create" element={
             <WithToken>
-              <Home />
+              <ProjectForm />
             </WithToken>
           } />
           <Route path="/auth/login" element={

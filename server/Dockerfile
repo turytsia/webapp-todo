@@ -1,4 +1,4 @@
-FROM python
+FROM python:3-alpine
 
 # The enviroment variable ensures that the python output is set straight
 # to the terminal without buffering it first

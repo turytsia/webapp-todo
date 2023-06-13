@@ -42,10 +42,10 @@ const AsideMenu = (props: propsType) => {
                 </Button>
                 <Button
                     link
-                    to=''
+                    to='/projects/create'
                     type={['transparent', 'bold']}
                     icon='ic:round-plus'
-                    isActive={pathname === "/projects/create-new-project"}>
+                    isActive={pathname === "/projects/create"}>
                     Add new project
                 </Button>
             </Section>
