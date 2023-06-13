@@ -18,7 +18,7 @@ class IndexView(APIView):
     permission_classes=[IsAuthenticated]
     authentication_classes=[TokenAuthentication]
     def get(self, request):
-        projects = Project.objects.all()
+        projects = Project.objects.filter(user_id = request.user)
         serializer = ProjectSerializer(projects, many=True)
         return Response({ "projects": serializer.data })
     
@@ -40,13 +40,15 @@ class IndexView(APIView):
 class ProjectView(APIView):
     permission_classes=[IsAuthenticated]
     authentication_classes=[TokenAuthentication]
+
     def get(self, request, pk):
         try:
             project = Project.objects.get(pk=pk)
         except Project.DoesNotExist as e:
             return Response({ "message": str(e) }, status=status.HTTP_404_NOT_FOUND)
 
-        print(list(project.project_tasks.all()))
+        if project.user_id != request.user:
+            return Response({ "message": "Not authorized" }, status=status.HTTP_401_UNAUTHORIZED)
 
         serializer = ProjectSerializer(project)
         return Response({ "project": serializer.data })
@@ -76,6 +78,9 @@ class ProjectView(APIView):
             project = Project.objects.get(pk=pk)
         except Project.DoesNotExist as e:
             return Response({ "message": str(e) }, status=status.HTTP_404_NOT_FOUND)
+
+        if project.user_id != request.user:
+            return Response({ "message": "Not authorized" }, status=status.HTTP_401_UNAUTHORIZED)
         
         try:
             project.title = request.data.get('title', project.title)
@@ -95,6 +100,9 @@ class ProjectView(APIView):
         except Project.DoesNotExist as e:
             return Response({ "message": str(e) }, status=status.HTTP_404_NOT_FOUND)
         
+        if project.user_id != request.user:
+            return Response({ "message": "Not authorized" }, status=status.HTTP_401_UNAUTHORIZED)
+        
         project.delete()
         return Response({ "message": "Project successfuly removed" })
 
@@ -108,6 +116,14 @@ class ProjectTaskView(APIView):
             project_task_pk = kwargs['project_task_pk']
         except KeyError as e:
             return Response({ "message": str(e) }, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            project = Project.objects.get(pk=project_pk)
+        except ProjectTask.DoesNotExist as e:
+            return Response({ "message": str(e) }, status=status.HTTP_404_NOT_FOUND)
+
+        if project.user_id != request.user:
+            return Response({ "message": "Not authorized" }, status=status.HTTP_401_UNAUTHORIZED)
         
         try:
             project_task = ProjectTask.objects.get(pk=project_task_pk)
@@ -124,6 +140,14 @@ class ProjectTaskView(APIView):
             project_task_pk = kwargs['project_task_pk']
         except KeyError as e:
             return Response({ "message": str(e) }, status=status.HTTP_404_NOT_FOUND)
+        
+        try:
+            project = Project.objects.get(pk=project_pk)
+        except ProjectTask.DoesNotExist as e:
+            return Response({ "message": str(e) }, status=status.HTTP_404_NOT_FOUND)
+
+        if project.user_id != request.user:
+            return Response({ "message": "Not authorized" }, status=status.HTTP_401_UNAUTHORIZED)
         
         try:
             project_task = ProjectTask.objects.get(pk=project_task_pk)
@@ -151,6 +175,14 @@ class ProjectTaskView(APIView):
             return Response({ "message": str(e) }, status=status.HTTP_404_NOT_FOUND)
         
         try:
+            project = Project.objects.get(pk=project_pk)
+        except ProjectTask.DoesNotExist as e:
+            return Response({ "message": str(e) }, status=status.HTTP_404_NOT_FOUND)
+
+        if project.user_id != request.user:
+            return Response({ "message": "Not authorized" }, status=status.HTTP_401_UNAUTHORIZED)
+        
+        try:
             project_task = ProjectTask.objects.get(pk=project_task_pk)
         except ProjectTask.DoesNotExist as e:
             return Response({ "message": str(e) }, status=status.HTTP_404_NOT_FOUND)
@@ -171,6 +203,14 @@ class ProjectTaskView(APIView):
             project_task_pk = kwargs['project_task_pk']
         except KeyError as e:
             return Response({ "message": str(e) }, status=status.HTTP_404_NOT_FOUND)
+        
+        try:
+            project = Project.objects.get(pk=project_pk)
+        except ProjectTask.DoesNotExist as e:
+            return Response({ "message": str(e) }, status=status.HTTP_404_NOT_FOUND)
+
+        if project.user_id != request.user:
+            return Response({ "message": "Not authorized" }, status=status.HTTP_401_UNAUTHORIZED)
         
         try:
             project_task = ProjectTask.objects.get(pk=project_task_pk)
@@ -194,6 +234,14 @@ class TaskView(APIView):
             return Response({ "message": str(e) }, status=status.HTTP_404_NOT_FOUND)
         
         try:
+            project = Project.objects.get(pk=project_pk)
+        except ProjectTask.DoesNotExist as e:
+            return Response({ "message": str(e) }, status=status.HTTP_404_NOT_FOUND)
+
+        if project.user_id != request.user:
+            return Response({ "message": "Not authorized" }, status=status.HTTP_401_UNAUTHORIZED)
+        
+        try:
             task = Task.objects.get(pk=task_pk)
         except Task.DoesNotExist as e:
             return Response({ "message": str(e) }, status=status.HTTP_404_NOT_FOUND)
@@ -208,6 +256,14 @@ class TaskView(APIView):
             task_pk = kwargs['task_pk']
         except KeyError as e:
             return Response({ "message": str(e) }, status=status.HTTP_404_NOT_FOUND)
+        
+        try:
+            project = Project.objects.get(pk=project_pk)
+        except ProjectTask.DoesNotExist as e:
+            return Response({ "message": str(e) }, status=status.HTTP_404_NOT_FOUND)
+
+        if project.user_id != request.user:
+            return Response({ "message": "Not authorized" }, status=status.HTTP_401_UNAUTHORIZED)
         
         try:
             task = Task.objects.get(pk=task_pk)
@@ -228,6 +284,14 @@ class TaskView(APIView):
             task_pk = kwargs['task_pk']
         except KeyError as e:
             return Response({ "message": str(e) }, status=status.HTTP_404_NOT_FOUND)
+        
+        try:
+            project = Project.objects.get(pk=project_pk)
+        except ProjectTask.DoesNotExist as e:
+            return Response({ "message": str(e) }, status=status.HTTP_404_NOT_FOUND)
+
+        if project.user_id != request.user:
+            return Response({ "message": "Not authorized" }, status=status.HTTP_401_UNAUTHORIZED)
         
         try:
             task = Task.objects.get(pk=task_pk)
