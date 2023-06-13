@@ -1,0 +1,32 @@
+.container{
+    width: 100%;
+    margin: 12px;
+}
+
+.header{
+    display: flex;
+    justify-content: space-between;
+}
+
+.titleContainer{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.iconButton {
+    cursor: pointer;
+    padding: 5px;
+    width:30px;
+    height:30px;
+    border-radius: 50%;
+}
+
+.iconButton:hover {
+    background-color: var(--color-hover);
+}
+
+.actions{
+    display: flex;
+    gap: 4px;
+}

@@ -2,6 +2,7 @@ import React from 'react'
 import Menu from './components/Menu/Menu'
 import Button from '../Button/Button'
 import Section from './components/Section/Section'
+import ProjectList from '../ProjectList/ProjectList'
 import { useLocation } from 'react-router-dom'
 
 type propsType = {
@@ -50,14 +51,7 @@ const AsideMenu = (props: propsType) => {
                 </Button>
             </Section>
             <Section text='Projects'>
-                {/* <Button
-                    link
-                    to=''
-                    type={['transparent', 'bold']}
-                    icon='material-symbols:dashboard'
-                    isActive={pathname === ""}>
-                    Dashboard
-                </Button> */}
+                <ProjectList />
             </Section>
         </Menu>
     )

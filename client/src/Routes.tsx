@@ -12,6 +12,8 @@ import AsideMenu from "./components/AsideMenu/AsideMenu";
 import { Register } from "./components/Register/Register";
 import Dashboard from "./components/Dashboard/Dashboard";
 import ProjectForm from "./components/ProjectForm/ProjectForm";
+import Project from "./components/Project/Project"
+import ProjectTask from "./components/ProjectTask/ProjectTask"
 
 
 const Routes = () => {
@@ -41,6 +43,16 @@ const Routes = () => {
           <Route path="/projects/create" element={
             <WithToken>
               <ProjectForm />
+            </WithToken>
+          } />
+          <Route path="/projects/:id" element={
+            <WithToken>
+              <Project />
+            </WithToken>
+          } />
+          <Route path="/projects/:id/project-tasks/:project_task_id" element={
+            <WithToken>
+              <ProjectTask />
             </WithToken>
           } />
           <Route path="/auth/login" element={

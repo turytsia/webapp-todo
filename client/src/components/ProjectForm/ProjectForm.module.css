@@ -1,0 +1,31 @@
+.container {
+    margin: 12px;
+    width: 100%;
+}
+
+.innerContainer{
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.innerContainer input,
+.innerContainer textarea {
+    width: 50%;
+}
+
+.innerContainer textarea{
+    min-height: 200px;
+}
+
+.actions{
+    display: flex;
+    justify-content: flex-end;
+    width: 50%;
+}
+
+.actions button{
+    padding: 14px;
+    width: 150px;
+}
