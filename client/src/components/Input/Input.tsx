@@ -7,6 +7,7 @@ type propsType = {
     name?: string
     text?: string
     value?: string
+    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
 }
 
 const Input = ({
@@ -14,7 +15,8 @@ const Input = ({
     type,
     name,
     text,
-    value
+    value,
+    onChange
 }: propsType) => {
     return (
         <div className = {classes.container}>
@@ -24,7 +26,8 @@ const Input = ({
                 className={classes.input}
                 placeholder={placeholder}
                 type={type}
-                value={value} />
+                value={value}
+                onChange={onChange} />
         </div>
     )
 }

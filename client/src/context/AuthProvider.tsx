@@ -1,4 +1,5 @@
 import { createContext, useState } from "react"
+import useFetch from "../hooks/use-fetch"
 
 
 type PropsType = {
@@ -10,9 +11,9 @@ type tokenType = string | null
 type ContextType = {
     isAuth: boolean
     token: tokenType
-    onLogin: () => void
+    onLogin: (username: string, password: string) => void
     onLogout: () => void
-    onRegister: () => void
+    onRegister: (username: string, password: string) => void
 }
 
 const initialContext: ContextType = {
@@ -23,27 +24,35 @@ const initialContext: ContextType = {
     onRegister: () => { },
 }
 
-const tokenKey = "token"
+export const tokenKey = "token"
 
 export const AuthContext = createContext<ContextType>(initialContext)
 
 const AuthProvider = (props: PropsType) => {
+    const [isLoading, get, post] = useFetch()
     const [token, setToken] = useState<tokenType>(localStorage.getItem(tokenKey))
 
-    const onLogin = async () => {
-        console.log("login")
-        localStorage.setItem(tokenKey, "1")
-        setToken("1")
+    const onLogin = async (username: string, password: string) => {
+        try {
+            const data = await post('/login/', { username, password })
+            localStorage.setItem(tokenKey, data.token)
+            setToken(data.token)
+        } catch (error) {
+            console.error(error)
+        }
     }
 
-    const onRegister = async () => {
-        console.log("register")
-        localStorage.setItem(tokenKey, "1")
-        setToken("1")
+    const onRegister = async (username: string, password: string) => {
+        try {
+            const data = await post('/auth/', { username, password })
+            localStorage.setItem(tokenKey, data.token)
+            setToken(data.token)
+        } catch (error) {
+            console.error(error)
+        }
     }
 
     const onLogout = async () => {
-        console.log("logout")
         localStorage.removeItem(tokenKey)
         setToken(null)
     }

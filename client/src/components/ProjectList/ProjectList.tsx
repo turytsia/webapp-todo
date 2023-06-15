@@ -1,26 +1,42 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import classes from "./ProjectList.module.css"
 import Button from "../Button/Button"
 import { useLocation } from 'react-router-dom'
+import useFetch from '../../hooks/use-fetch'
 
 const getRandomColor = () => '#' + Math.floor(Math.random() * 16777215).toString(16)
 
 const ProjectList = () => {
 
+    const [isLoading, get] = useFetch()
     const { pathname } = useLocation()
 
-    console.log(pathname)
+    const [projects, setProjects] = useState([])
+
+    const fetchProjects = async () => {
+        try {
+            const { projects } = await get('/projects/')
+            setProjects(projects)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    useEffect(() => {
+        fetchProjects()
+    }, [])
 
     return (
         <div className={classes.container}>
-            <Button
-                link
-                type={['transparent', 'bold']}
-                isActive={pathname === "/projects/1"}
-                to='/projects/1'>
-                <div className={classes.color} style={{ backgroundColor: getRandomColor() }} />
-                Project 1
-            </Button>
+            {projects.map(({ id, title }) =>
+                <Button
+                    link
+                    type={['transparent', 'bold']}
+                    isActive={pathname.includes("/projects/" + id)}
+                    to={'/projects/' + id}>
+                    <div className={classes.color} style={{ backgroundColor: getRandomColor() }} />
+                    {title}
+                </Button>)}
         </div>
     )
 }

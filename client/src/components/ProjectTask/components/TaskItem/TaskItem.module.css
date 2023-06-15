@@ -7,7 +7,7 @@
 }
 
 .container:last-of-type{
-    border-bottom: 1px solid #e6e6e6;
+    border-bottom: 1px solid hsl(0, 0%, 90%);
 }
 
 .container:not(.editable){
@@ -29,15 +29,11 @@
 
 .titleContainer{
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    align-items: center;
+    gap: 8px;
 }
 
 .title {
     font-size: 18px;
     font-weight: 700;
-}
-
-.desc {
-    /* color: #f1f1f1; */
 }

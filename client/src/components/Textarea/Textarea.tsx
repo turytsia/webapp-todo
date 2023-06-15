@@ -6,13 +6,15 @@ type propsType = {
     name?: string
     text?: string
     value?: string
+    onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
 }
 
 const Textarea = ({
     text,
     value,
     name,
-    placeholder
+    placeholder,
+    onChange
 }: propsType) => {
     return (
         <div className={classes.container}>
@@ -21,7 +23,8 @@ const Textarea = ({
                 name={name}
                 className={classes.textarea}
                 placeholder={placeholder}
-                value={value} />
+                value={value}
+                onChange={onChange} />
         </div>
     )
 }
