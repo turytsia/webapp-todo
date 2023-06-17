@@ -8,9 +8,9 @@ type propsType = {
 
 const WithoutToken = (props: propsType) => {
 
-    const { token } = useContext(AuthContext)
+    const { isAuth } = useContext(AuthContext)
 
-    if (token) {
+    if (isAuth) {
         return <Navigate to="/" />
     }
 

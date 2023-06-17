@@ -1,7 +1,7 @@
 import { createContext, useState } from "react"
 import useFetch from "../hooks/use-fetch"
 import { AxiosError } from "axios"
-import useAxios from "../useAxios"
+import { request } from "../axios"
 
 export type errorResponseType = {
     message: string
@@ -15,7 +15,6 @@ type tokenType = string | null
 
 type ContextType = {
     isAuth: boolean
-    token: tokenType
     onLogin: (username: string, password: string) => Promise<errorResponseType>
     onRegister: (username: string, password: string) => Promise<errorResponseType>
     onLogout: () => void
@@ -27,7 +26,6 @@ const initialErrorResponse: errorResponseType = {
 
 const initialContext: ContextType = {
     isAuth: false,
-    token: null,
     onLogin: () => Promise.resolve(initialErrorResponse),
     onRegister: () => Promise.resolve(initialErrorResponse),
     onLogout: () => { },
@@ -39,15 +37,13 @@ export const AuthContext = createContext<ContextType>(initialContext)
 
 const AuthProvider = (props: PropsType) => {
     const { get, post } = useFetch()
-    const { token, setToken } = useAxios()
-
-    console.log(token)
+    const [isAuth, setIsAuth] = useState(!!localStorage.getItem(tokenKey))
 
     const onLogin = async (username: string, password: string) => {
         try {
             const data = await post('/login/', { username, password })
             localStorage.setItem(tokenKey, data.token)
-            setToken(data.token)
+            setIsAuth(true)
             return null
         } catch (error) {
             const err = error as AxiosError
@@ -64,7 +60,7 @@ const AuthProvider = (props: PropsType) => {
         try {
             const data = await post('/auth/', { username, password })
             localStorage.setItem(tokenKey, data.token)
-            setToken(data.token)
+            setIsAuth(true)
             return null
         } catch (error) {
             const err = error as AxiosError
@@ -79,13 +75,12 @@ const AuthProvider = (props: PropsType) => {
 
     const onLogout = async () => {
         localStorage.removeItem(tokenKey)
-        setToken(null)
+        setIsAuth(false)
     }
 
-    
+
     const value: ContextType = {
-        isAuth: !!token,
-        token,
+        isAuth,
         onLogin,
         onLogout,
         onRegister

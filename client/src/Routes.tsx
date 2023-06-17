@@ -41,6 +41,13 @@ const initialLoading: loadingState = {
   projectTask: true
 }
 
+/**
+ * Loading reducer for specific loading
+ * 
+ * @param state loading state
+ * @param action loading action
+ * @returns new loading state
+ */
 const loadingReducer = (state: loadingState, action: loadingAction) => {
   switch (action.type) {
     case loadingActionType.projects:
@@ -52,11 +59,12 @@ const loadingReducer = (state: loadingState, action: loadingAction) => {
   return state
 }
 
+
+/**
+ *  Router component
+ */
 const Routes = () => {
-  const {
-    isAuth,
-    onLogout,
-  } = useContext(AuthContext)
+  const { isAuth } = useContext(AuthContext)
 
   const navigate = useNavigate()
   const { get, post, update, remove } = useFetch()
@@ -64,7 +72,11 @@ const Routes = () => {
   const [projects, setProjects] = useState<projectType[]>([])
   const [loading, dispatch] = useReducer<Reducer<loadingState, loadingAction>>(loadingReducer, initialLoading)
 
+  // Requests
 
+  /**
+   * Fetches all the projects for the specific user
+   */
   const fetchProjects = async () => {
     try {
       dispatch({ type: loadingActionType.projects, payload: true })
@@ -80,19 +92,31 @@ const Routes = () => {
     }
   }
 
+  /**
+   * Fetches specific project by Id 
+   * 
+   * @param id project's id
+   * @returns returns fetched project
+   */
   const fetchProject = async (id: string | undefined) => {
     if (typeof id === 'undefined') return
 
     try {
       dispatch({ type: loadingActionType.project, payload: true })
       const { project } = await get(`/projects/${id}/`)
-      dispatch({ type: loadingActionType.project, payload: false })
       return project
     } catch (error) {
       console.log(error)
+    } finally {
+      dispatch({ type: loadingActionType.project, payload: false })
     }
   }
 
+  /**
+   * Creates project and redirects user to id
+   * 
+   * @param data project's data
+   */
   const createProject = async (data: projectFormType) => {
     try {
       const { project } = await post('/projects/', data)
@@ -135,8 +159,6 @@ const Routes = () => {
   }
 
   const createProjectTask = async (id: number, data: projectTaskType) => {
-    if (typeof id === 'undefined') return
-
     try {
       const { project_task } = await post(`/projects/${id}/`, data)
       return project_task
@@ -146,7 +168,6 @@ const Routes = () => {
   }
 
   const updateProjectTask = async (id: number, projectTaskID: number, data: projectTaskType) => {
-    if (typeof id === 'undefined' || typeof projectTaskID === 'undefined') return
     try {
       const { project_task } = await update(`/projects/${id}/project-tasks/${projectTaskID}/`, data)
       return project_task
@@ -156,19 +177,14 @@ const Routes = () => {
   }
 
   const deleteProjectTask = async (id: number, projectTaskID: number) => {
-    if (typeof id === 'undefined' || typeof projectTaskID === 'undefined') return
-
     try {
-      const { projectTask } = await remove(`/projects/${id}/project-tasks/${projectTaskID}/`)
-
+      const { project_task } = await remove(`/projects/${id}/project-tasks/${projectTaskID}/`)
     } catch (error) {
       console.log(error)
     }
   }
 
   const createTask = async (projectID: number, projectTaskID: number, data: taskType) => {
-    if (typeof projectID === 'undefined' || typeof projectTaskID === 'undefined') return
-
     try {
       const { task } = await post(`/projects/${projectID}/project-tasks/${projectTaskID}/`, data)
       return task
@@ -178,10 +194,6 @@ const Routes = () => {
   }
 
   const updateTask = async (projectID: number, projectTaskID: number, taskID: number, data: taskType) => {
-    if (typeof projectID === 'undefined' ||
-      typeof projectTaskID === 'undefined' ||
-      typeof taskID === 'undefined') return
-
     try {
       const { task } = await update(`/projects/${projectID}/project-tasks/${projectTaskID}/tasks/${taskID}/`, data)
       return task
@@ -191,10 +203,6 @@ const Routes = () => {
   }
 
   const deleteTask = async (projectID: number, projectTaskID: number, taskID: number) => {
-    if (typeof projectID === 'undefined' ||
-      typeof projectTaskID === 'undefined' ||
-      typeof taskID === 'undefined') return
-
     try {
       const { task } = await remove(`/projects/${projectID}/project-tasks/${projectTaskID}/tasks/${taskID}/`)
     } catch (error) {
@@ -203,7 +211,9 @@ const Routes = () => {
   }
 
   useEffect(() => { 
-    fetchProjects()
+    if (isAuth) {
+      fetchProjects()
+    }
   }, [isAuth])
 
   return (

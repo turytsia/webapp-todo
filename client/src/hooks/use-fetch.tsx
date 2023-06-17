@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
-import useAxios from "../useAxios"
+import { request } from "../axios"
 
 const useFetch = () => {
 
-    const { request } = useAxios()
+    // const { request } = useAxios()
 
     /**
      * 
