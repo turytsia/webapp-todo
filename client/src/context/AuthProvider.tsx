@@ -29,7 +29,7 @@ export const tokenKey = "token"
 export const AuthContext = createContext<ContextType>(initialContext)
 
 const AuthProvider = (props: PropsType) => {
-    const [isLoading, get, post] = useFetch()
+    const { get, post } = useFetch()
     const [token, setToken] = useState<tokenType>(localStorage.getItem(tokenKey))
 
     const onLogin = async (username: string, password: string) => {

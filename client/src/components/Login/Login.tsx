@@ -3,7 +3,6 @@ import classes from "./Login.module.css"
 import Input from '../Input/Input'
 import Button from '../Button/Button'
 import AuthPage from '../AuthPage/AuthPage'
-import useFetch from '../../hooks/use-fetch'
 import { AuthContext } from '../../context/AuthProvider'
 
 const Login = () => {

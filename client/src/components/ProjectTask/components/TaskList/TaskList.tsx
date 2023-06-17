@@ -7,13 +7,17 @@ import { taskType } from "../../ProjectTask"
 
 type propsType = {
 	tasks: taskType[]
-	onSave: (id: number) => void
 	onEdit: (id: number) => void
+	onSubmit: (data: taskType) => void
+	onUpdate: (data: taskType) => void
+	onDelete: (id: number) => void
 }
 
 const TaskList = ({
 	tasks,
-	onSave,
+	onSubmit,
+	onDelete,
+	onUpdate,
 	onEdit,
 }: propsType) => {
 	return (
@@ -21,15 +25,17 @@ const TaskList = ({
 			<div className={classes.header}>
 				Project tasks
 			</div>
-			{tasks.map(({ isDone, text, editable }, id) =>
-				<TaskItem
-					key = {id}
-					editable={editable}
-					isDone={isDone}
-					text={text}
-					onSave={() => onSave(id)}
-					onEdit={() => onEdit(id)}
-					 />)}
+			<div>
+				{tasks.map((task, idx) =>
+					<TaskItem
+						key={Math.random()}
+						task={task}
+						onSubmit={onSubmit}
+						onUpdate={onUpdate}
+						onDelete={() => onDelete(task.id!)}
+						onEdit={() => onEdit(idx)}
+					/>)}
+			</div>
 		</div>
 	)
 }

@@ -3,28 +3,29 @@ import EditableText from "../../../EditableText/EditableText"
 
 import classes from "./TaskItem.module.css"
 import { Icon } from '@iconify/react'
+import { taskType } from '../../ProjectTask'
+import { withStopPropagation } from '../../../../utils'
 
 type propsType = {
-    editable: boolean
-    text: string
-    isDone: boolean
-    onSave: () => void
+    task: taskType
+    onSubmit: (data: taskType) => void
+    onUpdate: (data: taskType) => void
+    onDelete: () => void
     onEdit: () => void
 } 
 
 const TaskItem = ({
-    editable,
-    isDone,
-    text: initialText,
-    onSave,
+    task: initialTask,
+    onSubmit,
+    onUpdate,
+    onDelete,
     onEdit
 }: propsType) => {
 
-    const [text, setText] = useState(initialText)
+    const [task, setTask] = useState(initialTask)
 
-    const onEditHandler = (e: any) => {
-        e.preventDefault()
-        onEdit()
+    const onTaskChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setTask(t => ({...t, [e.target.name]: e.target.value}))
     }
 
     return (
@@ -34,26 +35,27 @@ const TaskItem = ({
                 <EditableText
                     placeholder="Task's text"
                     className={classes.title}
-                    value={text}
-                    readOnly={!editable}
-                    onChange={e => setText(e.target.value)}
+                    value={task.text}
+                    readOnly={!task.isEditable}
+                    name='text'
+                    onChange={onTaskChange}
                 />
             </div>
             <div className={classes.actions}>
-                {editable ?
+                {task.isEditable ?
                     <>
                         <Icon
                             width={20}
                             height={20}
                             icon="ic:round-check"
                             className={classes.iconButton}
-                            onClick={onSave} />
+                            onClick={() => task.isSaved ? onUpdate({ ...task, isEditable: false }) : onSubmit({ ...task, isEditable: false })} />
                         <Icon
                             width={20}
                             height={20}
-                            icon="charm:cross"
+                            icon="material-symbols:delete-outline"
                             className={classes.iconButton}
-                            onClick={() => {}} />
+                            onClick={onDelete} />
                     </> :
                     <>
                         <Icon
@@ -61,13 +63,7 @@ const TaskItem = ({
                             height={20}
                             icon="material-symbols:edit-outline"
                             className={classes.iconButton}
-                            onClick={onEditHandler} />
-                        <Icon
-                            width={20}
-                            height={20}
-                            icon="material-symbols:delete-outline"
-                            className={classes.iconButton}
-                            onClick={() => { }} />
+                            onClick={withStopPropagation(onEdit)} />
                     </>}
             </div>
         </div>

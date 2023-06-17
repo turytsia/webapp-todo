@@ -4,6 +4,7 @@ import classNames from 'classnames'
 
 type propsType = {
     placeholder?: string
+    name?: string
     value?: string
     className?: string
     readOnly?: boolean
@@ -11,20 +12,26 @@ type propsType = {
 }
 
 const EditableText = ({
-    placeholder = " ",
-    value = " ",
+    placeholder = "",
+    name = "",
+    value = "",
     className,
     readOnly = true,
     onChange
 }: propsType) => {
+
+    const inputStyles = classNames(classes.text, className, {
+        [classes.editable]: !readOnly
+    })
+
     return (
         <input
-            className={classNames(classes.text, className)}
+            className={inputStyles}
             placeholder={placeholder}
             value={value}
             readOnly={readOnly}
             onChange={onChange}
-            style={{ width: (readOnly ? value.length : placeholder) + "ch"}}
+            name={name}
           />
     )
 }

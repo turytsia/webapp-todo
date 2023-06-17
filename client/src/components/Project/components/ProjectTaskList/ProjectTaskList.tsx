@@ -7,16 +7,25 @@ import { projectTaskType } from '../../Project'
 
 type propsType = {
     projectTasks: projectTaskType[]
-    onSave: (p: projectTaskType) => void
     onOpen: (id: number) => void
-    onCancel: (id: number) => void
+    onEdit: (id: number) => void
+    onDelete: (id: number) => void
+    onSubmit: (p: projectTaskType) => void
+    onUpdate: (p: projectTaskType) => void
 }
 
+/**
+ * Creates project task list at Project.tsx
+ * 
+ * @param props 
+ */
 const ProjectTaskList = ({
     projectTasks,
-    onSave,
+    onSubmit,
     onOpen,
-    onCancel
+    onEdit,
+    onDelete,
+    onUpdate,
 }: propsType) => {
     return (
         <div className={classes.container}>
@@ -24,14 +33,16 @@ const ProjectTaskList = ({
                 Project tasks
             </div>
             <div>
-                {projectTasks.map(({ editable, title, text }, id) =>
+                {projectTasks.map((projectTask, idx) =>
                     <ProjectTaskItem
-                        editable={editable}
-                        title={title}
-                        text={text}
-                        onSave={onSave}
-                        onClick={() => onOpen(id)}
-                        onCancel={() => onCancel(id)} />)}
+                        key={Math.random()}
+                        projectTask={projectTask}
+                        onClick={() => onOpen(projectTask.id!)}
+                        onEdit={() => onEdit(idx)}
+                        onSubmit={onSubmit}
+                        onUpdate={onUpdate}
+                        onDelete={() => onDelete(idx)} />
+                )}
             </div>
         </div>
     )

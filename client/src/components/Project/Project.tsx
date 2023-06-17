@@ -1,95 +1,243 @@
-import React, { useState } from 'react'
-import ProjectTaskList from "./components/ProjectTaskList/ProjectTaskList"
-import classes from "./Project.module.css"
+import React, { useEffect, useMemo, useState } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
+
 import { Icon } from '@iconify/react'
-import { useNavigate } from 'react-router-dom'
+import ProjectTaskList from "./components/ProjectTaskList/ProjectTaskList"
+import ProjectSkeleton from "./ProjectSkeleton"
+
+import { projectFormType } from '../ProjectForm/ProjectForm'
+import { taskType } from '../ProjectTask/ProjectTask'
+
+import classes from "./Project.module.css"
+import EditableText from '../EditableText/EditableText'
 
 export type projectTaskType = {
-    title: string;
-    text: string;
-    editable: boolean;
+    id?: number
+    project_id?: number
+    title: string
+    text: string
+    isEditable: boolean
+    isSaved?: boolean
+    tasks: taskType[]
 }
 
-const newProjectTask: projectTaskType = {
+export type projectType = {
+    id: number
+    title: string
+    text: string
+    created_at: string
+    updated_at: string
+    project_tasks: projectTaskType[]
+}
+
+type propsType = {
+    isLoading: boolean
+    onFetch: (id: string | undefined) => Promise<projectType>
+    onDelete: (id: number) => void
+    onUpdate: (id: number, data: projectFormType) => void
+    onCreateTask: (id: number, data: projectTaskType) => Promise<projectTaskType>
+    onUpdateTask: (id: number, projectTaskID: number, data: projectTaskType) => Promise<projectTaskType>
+    onDeleteTask: (id: number, projectTaskID: number) => void
+}
+
+const initialProjectTask: projectTaskType = {
     title: "",
     text: "",
-    editable: true
+    isEditable: true,
+    isSaved: false,
+    tasks: []
 }
 
-const Project = () => {
+const initialProject: projectType = {
+    id: 0,
+    title: "",
+    text: "",
+    created_at: "",
+    updated_at: "",
+    project_tasks: [],
+}
+
+/**
+ * Creates project page
+ * 
+ * @param props 
+ */
+const Project = ({
+    isLoading,
+    onDelete,
+    onFetch,
+    onUpdate,
+    onCreateTask,
+    onUpdateTask,
+    onDeleteTask
+}: propsType) => {
 
     const navigate = useNavigate()
+    const { pathname } = useLocation()
+    const { projectID } = useParams()
+
+    const [isEditable, setIsEditable] = useState(false)
+    const [project, setProject] = useState<projectType>(initialProject)
     const [projectTasks, setProjectTasks] = useState<projectTaskType[]>([])
 
-    const onProjectTaskEdit = (id: number) => {
-        setProjectTasks(prev => prev.map((p, i) => ({ ...p, editable: id === i })))
+    //handlers
+
+    /**
+     * Enables edit mode for specific project task
+     * 
+     * @param idx index of project task
+     */
+    const onProjectTaskEdit = (idx: number) => {
+        setProjectTasks(prev => prev.map((p, i) => ({ ...p, isEditable: idx === i })))
     }
 
-    // const onProjectTaskReset = (id: number) => {
-    //     setProjectTasks(prev => prev.filter((p,i) => i !== id))
-    // }
-
-    const onProjectTaskCancel = (id: number) => {
-        setProjectTasks(prev => prev.filter((p, i) => i !== id))
+    /**
+     * Removes project task by its index, sends request delete
+     * 
+     * @param idx index of project task
+     */
+    const onProjectTaskDelete = async (idx: number) => {
+        onDeleteTask(project.id, projectTasks[idx].id!)
+        setProjectTasks(prev => prev.filter((_, i) => i !== idx))
     }
 
+    /**
+     * Creates empty project task in edit mode, switching off editing at others
+     */
     const onProjectTaskCreate = () => {
-        if (isProjectTaskEditable) return
-
-        setProjectTasks(prev => {
-            const lastProjectTasks = prev.map((p, i) => ({ ...p, editable: false }))
-            return [...lastProjectTasks, newProjectTask]
-        })
+        if (hasEditableProjectTask) return   //Creating in edit mode is not allowed
+        setProjectTasks(prev => [...prev.map(p => ({ ...p, isEditable: false })), initialProjectTask])
     }
 
-    const onProjectTaskSave = (p: projectTaskType) => {
-        setProjectTasks(prev => {
-            const lastProjectTasks = [...prev].slice(0, -1)
-            return [...lastProjectTasks, p]
-        })
+    /**
+     * Submits new project task, stores it in DB
+     * 
+     * @param data newly created project task
+     */
+    const onProjectTaskSubmit = async (data: projectTaskType) => {
+        const projectTask = await onCreateTask(project.id, data)
+        setProjectTasks(prev => [...prev.slice(0, -1), { ...projectTask, isSaved: true }])
     }
 
+    /**
+     * Updates project task
+     * 
+     * @param data updated project task
+     */
+    const onProjectTaskUpdate = async (data: projectTaskType) => {
+        const projectTask = await onUpdateTask(project.id, data.id!, data)
+        setProjectTasks(prev => prev.map(p => ({ ...(p.id === projectTask.id ? projectTask : p), isEditable: false, isSaved: true })))
+    }
+
+    /**
+     * Redirects user to a project task
+     * 
+     * @param id project task's id
+     */
     const onProjectTaskOpen = (id: number) => {
-        if (isProjectTaskEditable) return
-
+        if (hasEditableProjectTask) return // you cannot redirect when editting project task
         navigate('project-tasks/' + id)
     }
 
-    const isProjectTaskEditable = projectTasks.some(p => p.editable)
+    /**
+     * Removes current project and redirects user to a Dashboard
+     */
+    const onProjectDelete = () => {
+        onDelete(project.id)
+        navigate("/")
+    }
+
+    const onProjectChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setProject(prev => ({ ...prev, [e.target.name]: e.target.value }))
+    }
+
+    const onProjectUpdate = () => {
+        onUpdate(project.id, project)
+        setIsEditable(false)
+    }
+
+    /**
+     * Data fetch
+     */
+    const fetchData = async () => {
+        const project = await onFetch(projectID)
+        setProject(project)
+        setProjectTasks(project.project_tasks.map(task => ({ ...task, isSaved: true })))
+    }
+
+    useEffect(() => {
+        fetchData()
+    }, [pathname])
+
+    const hasEditableProjectTask = useMemo(() => projectTasks.some(({ isEditable }) => isEditable), [projectTasks])
+
+    if (isLoading) {
+        return <ProjectSkeleton />
+    }
 
     return (
         <div className={classes.container}>
             <div className={classes.header}>
                 <div className={classes.titleContainer}>
-                    <h2 className={classes.title}>Project 1</h2>
-                    <p className={classes.desc}>Project description</p>
+                    <EditableText
+                        placeholder="Project task's title"
+                        className={classes.title}
+                        value={project.title}
+                        readOnly={!isEditable}
+                        name="title"
+                        onChange={onProjectChange}
+                    />
+                    <EditableText
+                        placeholder="Project task's title"
+                        className={classes.desc}
+                        value={project.text}
+                        readOnly={!isEditable}
+                        name="text"
+                        onChange={onProjectChange}
+                    />
                 </div>
                 <div className={classes.actions}>
-                    <Icon
-                        width={20}
-                        height={20}
-                        icon="ic:round-plus"
-                        className={classes.iconButton}
-                        onClick={onProjectTaskCreate} />
-                    <Icon
-                        width={20}
-                        height={20}
-                        icon="material-symbols:edit-outline"
-                        className={classes.iconButton}
-                        onClick={() => { }} />
-                    <Icon
-                        width={20}
-                        height={20}
-                        icon="material-symbols:delete-outline"
-                        className={classes.iconButton}
-                        onClick={() => { }} />
+                    {isEditable ? <>
+                        <Icon
+                            width={20}
+                            height={20}
+                            icon="ic:round-check"
+                            className={classes.iconButton}
+                            onClick={onProjectUpdate} />
+                        <Icon
+                            width={20}
+                            height={20}
+                            icon="material-symbols:delete-outline"
+                            className={classes.iconButton}
+                            onClick={onProjectDelete} />
+                    </>
+                        :
+                        <>
+                            <Icon
+                                width={20}
+                                height={20}
+                                icon="ic:round-plus"
+                                className={classes.iconButton}
+                                onClick={onProjectTaskCreate} />
+                            <Icon
+                                width={20}
+                                height={20}
+                                icon="material-symbols:edit-outline"
+                                className={classes.iconButton}
+                                onClick={() => setIsEditable(true)} />
+                        </>}
+
+
                 </div>
             </div>
             <ProjectTaskList
                 projectTasks={projectTasks}
-                onSave={onProjectTaskSave}
+                onSubmit={onProjectTaskSubmit}
+                onUpdate={onProjectTaskUpdate}
                 onOpen={onProjectTaskOpen}
-                onCancel={onProjectTaskCancel} />
+                onEdit={onProjectTaskEdit}
+                onDelete={onProjectTaskDelete}
+            />
         </div>
     )
 }

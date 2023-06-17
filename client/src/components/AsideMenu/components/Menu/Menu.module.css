@@ -6,3 +6,44 @@
     padding: 12px;
     border-radius: var(--border-radius) 0 0 var(--border-radius);
 }
+
+.containerSkeleton {
+    min-width: 220px;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    padding: 12px;
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+    gap: 8px;
+}
+
+.sectionSkeleton{
+    height: 10px;
+    margin: 10px 0px;
+}
+
+.buttonSkeleton{
+    height: 20px;
+}
+
+.buttonSkeleton:not(.buttonSkeleton:last-of-type) {
+    margin-bottom: 5px;
+}
+
+.projectSkeleton{
+    display: grid;
+    grid-template-columns: 14px 1fr;
+    width: 100%;
+    gap: 8px;
+    margin: 2px 0;
+}
+
+.projectDotSkeleton{
+    width: 10px;
+    height: 14px;
+    aspect-ratio: 1;
+}
+
+.projectTitleSkeleton{
+    height: 14px;
+}

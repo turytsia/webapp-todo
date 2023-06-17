@@ -1,34 +1,38 @@
-import { Icon } from '@iconify/react'
-import React, { useState } from 'react'
+import React, { MouseEventHandler, useState } from 'react'
 
-import classes from "./ProjectTaskItem.module.css"
+import { Icon } from '@iconify/react'
 import EditableText from '../../../EditableText/EditableText'
-import classNames from 'classnames'
 
 import { projectTaskType } from '../../Project'
 
+import classNames from 'classnames'
+import classes from "./ProjectTaskItem.module.css"
+import { withStopPropagation } from '../../../../utils'
+
 type propsType = {
-    editable: boolean
-    title: string
-    text: string
-    onSave: (e: projectTaskType) => void
+    projectTask: projectTaskType
     onClick: () => void
-    onCancel: () => void
+    onDelete: (id: number) => void
+    onEdit: (id: number) => void
+    onSubmit: (data: projectTaskType) => void
+    onUpdate: (data: projectTaskType) => void
 }
 
 const ProjectTaskItem = ({
-    editable,
-    title: initialTitle,
-    text: initialText,
-    onSave,
+    projectTask: initialProjectTask,
     onClick,
-    onCancel
+    onEdit,
+    onSubmit,
+    onUpdate,
+    onDelete
 }: propsType) => {
 
-    const [title, setTitle] = useState(initialTitle)
-    const [text, setText] = useState(initialText)
+    const [title, setTitle] = useState(initialProjectTask.title)
+    const [text, setText] = useState(initialProjectTask.text)
 
-    const containerStyles = classNames(classes.container, { [classes.editable]: editable })
+    const projectTask = { ...initialProjectTask, title, text }
+    
+    const containerStyles = classNames(classes.container, { [classes.editable]: projectTask.isEditable })
 
     return (
         <div className={containerStyles} onClick={onClick}>
@@ -37,47 +41,39 @@ const ProjectTaskItem = ({
                     placeholder="Project task's title"
                     className={classes.title}
                     value={title}
-                    readOnly={!editable}
+                    readOnly={!projectTask.isEditable}
                     onChange={e => setTitle(e.target.value)}
                 />
                 <EditableText
                     placeholder="Project task's description"
                     className={classes.desc}
                     value={text}
-                    readOnly={!editable}
+                    readOnly={!projectTask.isEditable}
                     onChange={e => setText(e.target.value)}
                 />
             </div>
             <div className={classes.actions}>
-                {editable ?
+                {projectTask.isEditable ?
                     <>
                         <Icon
                             width={20}
                             height={20}
                             icon="ic:round-check"
                             className={classes.iconButton}
-                            onClick={() => onSave({ title, text, editable:false })} />
-                        <Icon
-                            width={20}
-                            height={20}
-                            icon="charm:cross"
-                            className={classes.iconButton}
-                            onClick={onCancel} />
-                    </> :
-                    <>
-                        <Icon
-                            width={20}
-                            height={20}
-                            icon="material-symbols:edit-outline"
-                            className={classes.iconButton}
-                            onClick={() => { }} />
+                            onClick={() => projectTask.isSaved ? onUpdate({ ...projectTask, isEditable: false }) : onSubmit({ ...projectTask, isEditable: false })} />
                         <Icon
                             width={20}
                             height={20}
                             icon="material-symbols:delete-outline"
                             className={classes.iconButton}
-                            onClick={() => { }} />
-                    </>}
+                            onClick={withStopPropagation(onDelete)} />
+                    </> :
+                    <Icon
+                        width={20}
+                        height={20}
+                        icon="material-symbols:edit-outline"
+                        className={classes.iconButton}
+                        onClick={withStopPropagation(onEdit)} />}
             </div>
         </div>
     )

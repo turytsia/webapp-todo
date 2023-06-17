@@ -1,5 +1,5 @@
-import { useContext } from "react"
-import { Routes as Router, Route, Navigate } from 'react-router-dom';
+import { Reducer, ReducerAction, useContext, useEffect, useReducer, useState } from "react"
+import { Routes as Router, Route, Navigate, useNavigate } from 'react-router-dom';
 import { AuthContext } from './context/AuthProvider';
 import WithToken from './components/common/WithToken/WithToken';
 import WithoutToken from './components/common/WithoutToken/WithoutToken';
@@ -11,10 +11,45 @@ import Login from "./components/Login/Login";
 import AsideMenu from "./components/AsideMenu/AsideMenu";
 import { Register } from "./components/Register/Register";
 import Dashboard from "./components/Dashboard/Dashboard";
-import ProjectForm from "./components/ProjectForm/ProjectForm";
-import Project from "./components/Project/Project"
-import ProjectTask from "./components/ProjectTask/ProjectTask"
+import ProjectForm, { projectFormType } from "./components/ProjectForm/ProjectForm";
+import Project, { projectTaskType } from "./components/Project/Project"
+import ProjectTask, { taskType } from "./components/ProjectTask/ProjectTask"
+import useFetch from "./hooks/use-fetch";
+import { projectType } from "./components/ProjectList/ProjectList";
 
+enum loadingActionType {
+  projects,
+  project,
+  projectTask,
+}
+
+type loadingAction = {
+  type: loadingActionType
+  payload: boolean
+}
+
+type loadingState = {
+  projects: boolean
+  project: boolean
+  projectTask: boolean
+}
+
+const initialLoading: loadingState = {
+  projects: true,
+  project: true,
+  projectTask: true
+}
+
+const loadingReducer = (state: loadingState, action: loadingAction) => {
+  switch (action.type) {
+    case loadingActionType.projects:
+      return { ...state, projects: action.payload }
+    case loadingActionType.project:
+      return { ...state, project: action.payload }
+  }
+
+  return state
+}
 
 const Routes = () => {
   const {
@@ -25,15 +60,155 @@ const Routes = () => {
     onRegister
   } = useContext(AuthContext)
 
+  const navigate = useNavigate()
+  const { get, post, update, remove } = useFetch()
+
+  const [projects, setProjects] = useState<projectType[]>([])
+  const [loading, dispatch] = useReducer<Reducer<loadingState, loadingAction>>(loadingReducer, initialLoading)
 
 
-  const Home = () => <>Home</>
+  const fetchProjects = async () => {
+    try {
+      dispatch({ type: loadingActionType.projects, payload: true })
+      const { projects } = await get('/projects/')
+      dispatch({ type: loadingActionType.projects, payload: false })
+      setProjects(projects)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const fetchProject = async (id: string | undefined) => {
+    if (typeof id === 'undefined') return
+
+    try {
+      dispatch({ type: loadingActionType.project, payload: true })
+      const { project } = await get(`/projects/${id}/`)
+      dispatch({ type: loadingActionType.project, payload: false })
+      return project
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const createProject = async (data: projectFormType) => {
+    try {
+      const { project } = await post('/projects/', data)
+      setProjects(prev => [...prev, project])
+      navigate('/projects/' + project.id)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const updateProject = async (id: number, data: projectFormType) => {
+    try {
+      const { project } = await update(`/projects/${id}/`, data)
+      setProjects(prev => prev.map(p => p.id === project.id ? project : p))
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const deleteProject = async (id: number) => {
+    try {
+      const { project } = await remove(`/projects/${id}/`)
+      setProjects(prev => prev.filter(({ id: projectID }) => projectID !== id))
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const fetchProjectTask = async (projectID: string | undefined, projectTaskID: string | undefined) => {
+    if (typeof projectID === 'undefined' || typeof projectTaskID === 'undefined') return
+
+    try {
+      dispatch({ type: loadingActionType.projectTask, payload: true })
+      const { project_task } = await get(`/projects/${projectID}/project-tasks/${projectTaskID}/`)
+      dispatch({ type: loadingActionType.projectTask, payload: false })
+      return project_task
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const createProjectTask = async (id: number, data: projectTaskType) => {
+    if (typeof id === 'undefined') return
+
+    try {
+      const { project_task } = await post(`/projects/${id}/`, data)
+      return project_task
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const updateProjectTask = async (id: number, projectTaskID: number, data: projectTaskType) => {
+    if (typeof id === 'undefined' || typeof projectTaskID === 'undefined') return
+    try {
+      const { project_task } = await update(`/projects/${id}/project-tasks/${projectTaskID}/`, data)
+      return project_task
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const deleteProjectTask = async (id: number, projectTaskID: number) => {
+    if (typeof id === 'undefined' || typeof projectTaskID === 'undefined') return
+
+    try {
+      const { projectTask } = await remove(`/projects/${id}/project-tasks/${projectTaskID}/`)
+
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const createTask = async (projectID: number, projectTaskID: number, data: taskType) => {
+    if (typeof projectID === 'undefined' || typeof projectTaskID === 'undefined') return
+
+    try {
+      const { task } = await post(`/projects/${projectID}/project-tasks/${projectTaskID}/`, data)
+      return task
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const updateTask = async (projectID: number, projectTaskID: number, taskID: number, data: taskType) => {
+    if (typeof projectID === 'undefined' ||
+      typeof projectTaskID === 'undefined' ||
+      typeof taskID === 'undefined') return
+
+    try {
+      const { task } = await update(`/projects/${projectID}/project-tasks/${projectTaskID}/tasks/${taskID}/`, data)
+      return task
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const deleteTask = async ( projectID: number, projectTaskID: number, taskID: number) => {
+    if (typeof projectID === 'undefined' ||
+      typeof projectTaskID === 'undefined' ||
+      typeof taskID === 'undefined') return
+
+    try {
+      const { task } = await remove(`/projects/${projectID}/project-tasks/${projectTaskID}/tasks/${taskID}/`)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    fetchProjects()
+  }, [])
 
   return (
     <Container>
       <Header></Header>
       <Main>
-        <AsideMenu isAuth={isAuth} />
+        <AsideMenu isLoading={loading.projects} isAuth={isAuth} projects={projects} />
         <Router>
           <Route path="/" element={
             <WithToken>
@@ -42,17 +217,30 @@ const Routes = () => {
           } />
           <Route path="/projects/create" element={
             <WithToken>
-              <ProjectForm />
+              <ProjectForm onCreate={createProject} />
             </WithToken>
           } />
-          <Route path="/projects/:id" element={
+          <Route path="/projects/:projectID" element={
             <WithToken>
-              <Project />
+              <Project
+                isLoading={loading.project}
+                onDelete={deleteProject}
+                onFetch={fetchProject}
+                onUpdate={updateProject}
+                onCreateTask={createProjectTask}
+                onUpdateTask={updateProjectTask}
+                onDeleteTask={deleteProjectTask} />
             </WithToken>
           } />
-          <Route path="/projects/:id/project-tasks/:project_task_id" element={
+          <Route path="/projects/:projectID/project-tasks/:projectTaskID" element={
             <WithToken>
-              <ProjectTask />
+              <ProjectTask
+                onFetch={fetchProjectTask}
+                onUpdate={updateProjectTask}
+                onDelete={deleteProjectTask}
+                onCreateTask={createTask}
+                onUpdateTask={updateTask}
+                onDeleteTask={deleteTask} />
             </WithToken>
           } />
           <Route path="/auth/login" element={
