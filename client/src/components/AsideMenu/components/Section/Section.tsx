@@ -6,24 +6,30 @@ import classNames from 'classnames'
 type propsType = {
     children: React.ReactNode
     text: string
+    className?: string
 }
 
-const Section = (props: propsType) => {
+const Section = ({
+    children,
+    text,
+    className
+}: propsType) => {
     const [isActive, setIsActive] = useState<boolean>(true)
 
     const onClick = () => {
         setIsActive(prev => !prev)
     }
 
+    const listStyle = classNames(classes.list, className)
     const arrowStyle = classNames(classes.icon, { [classes.iconActive]: isActive })
 
     return (
         <>
             <div className={classes.container}>
-                {props.text}
+                {text}
                 <Icon icon="ep:arrow-up-bold" className={arrowStyle} onClick={onClick} />
             </div>
-            {isActive && <div className={classes.list}>{props.children}</div>}
+            <div className={listStyle}>{isActive && children}</div>
         </>
     )
 }

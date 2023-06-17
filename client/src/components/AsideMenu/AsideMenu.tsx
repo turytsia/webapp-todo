@@ -1,10 +1,12 @@
-import React from 'react'
+import React, { useContext, useEffect } from 'react'
 import Menu from './components/Menu/Menu'
 import Button from '../Button/Button'
 import Section from './components/Section/Section'
 import ProjectList, { projectType } from '../ProjectList/ProjectList'
 import { useLocation } from 'react-router-dom'
-import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
+
+import classes from "./AsideMenu.module.css"
+import { AuthContext } from '../../context/AuthProvider'
 
 type propsType = {
     isAuth: boolean
@@ -15,14 +17,15 @@ type propsType = {
 const AsideMenu = ({
     isAuth,
     isLoading,
-    projects
+    projects,
 }: propsType) => {
 
     const { pathname } = useLocation()
+    const { onLogout } = useContext(AuthContext)
 
     if (!isAuth) {
         return (
-            <Menu isLoading={isLoading}>
+            <Menu isLoading={false}>
                 <Section text='Home'>
                     <Button
                         link
@@ -57,9 +60,15 @@ const AsideMenu = ({
                     Add new project
                 </Button>
             </Section>
-            <Section text='Projects'>
+            <Section className={classes.projectList} text='Projects'>
                 <ProjectList projects={projects} />
             </Section>
+            <Button
+                onClick={onLogout}
+                type={['transparent']}
+                icon='material-symbols:logout'>
+                Sign Out
+            </Button>
         </Menu>
     )
 }

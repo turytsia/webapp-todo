@@ -26,11 +26,12 @@ class IndexView(APIView):
         try:
             title = request.data['title']
             text = request.data['text']
+            color = request.data['color']
             deadline = request.data.get('deadline')
         except KeyError:
             return Response({ "message": "Invalid key-value" }, status=status.HTTP_404_NOT_FOUND)
         
-        project = Project(user_id=request.user, title=title, text=text, deadline_at=deadline)
+        project = Project(user_id=request.user, title=title, text=text, deadline_at=deadline, color = color)
         project.save()
 
         serializer = ProjectSerializer(project)

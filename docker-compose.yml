@@ -4,7 +4,8 @@ services:
     build: ./server
     container_name: todo-app-server
     volumes:
-      - ./server:/server
+      - ./server/server:/server/server
+      - ./server/todo:/server/todo
     ports:
       - "8000:8000"
   client:
@@ -13,6 +14,7 @@ services:
     volumes:
       - ./client/src:/client/src
       - ./client/package.json:/client/package.json
+      - /client/node_modules
     stdin_open: true
     tty: true
     depends_on:

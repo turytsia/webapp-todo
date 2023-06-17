@@ -7,30 +7,29 @@ export type projectType = {
     id: number
     title: string
     text: string
+    color?: string
 }
 
 type propsType = {
     projects: projectType[]
 }
 
-const getRandomColor = () => '#' + Math.floor(Math.random() * 16777215).toString(16)
-
 const ProjectList = ({
-    projects
+    projects,
 }: propsType) => {
 
     const { pathname } = useLocation()
 
     return (
         <div className={classes.container}>
-            {projects.map(({ id, title }) =>
+            {projects.map(({ id, color, title }) =>
                 <Button
                     link
                     key={id}
                     type={['transparent']}
                     isActive={pathname.includes("/projects/" + id)}
                     to={'/projects/' + id}>
-                    <div className={classes.color} style={{ backgroundColor: getRandomColor() }} />
+                    <div className={classes.color} style={{ backgroundColor: color}} />
                     {title}
                 </Button>)}
         </div>

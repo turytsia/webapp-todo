@@ -4,10 +4,12 @@ import classes from "./ProjectForm.module.css"
 import Input from '../Input/Input'
 import Textarea from "../Textarea/Textarea" 
 import Button from '../Button/Button'
+import { getRandomColor } from '../../utils'
 
 export type projectFormType = {
     title: string
     text: string
+    color: string
 }
 
 type propsType = {
@@ -16,7 +18,8 @@ type propsType = {
 
 const initialProject: projectFormType = {
     title: '',
-    text: ''
+    text: '',
+    color: ''
 }
 
 const ProjectForm = ({
@@ -30,7 +33,7 @@ const ProjectForm = ({
     }
 
     const onCreate = () => {
-        onCreateHandler(project)
+        onCreateHandler({ ...project, color: getRandomColor()})
     }
 
     return (

@@ -1,8 +1,14 @@
 import React, { useState } from 'react'
-import { request } from "../request"
+import useAxios from "../useAxios"
 
 const useFetch = () => {
 
+    const { request } = useAxios()
+
+    /**
+     * 
+     * @throws {AxiosError}
+     */
     const get = async (url: string) => {
         const response = await request.get(url)
         return response.data

@@ -8,6 +8,7 @@ class Project(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deadline_at = models.DateField(null=True)
+    color = models.CharField(max_length=255)
 
 class ProjectTask(models.Model):
     project_id = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='project_tasks')

@@ -10,14 +10,24 @@ export const Register = () => {
     const { onRegister } = useContext(AuthContext)
     const [username, setUsername] = useState<string>("")
     const [password, setPassword] = useState<string>("")
+    const [error, setError] = useState<string>("")
+
+
+    const onLoginHandler = async () => {
+        const error = await onRegister(username, password)
+        if (error) {
+            setError(error.message)
+        }
+    }
 
     return (
         <AuthPage
             title='Sign Up'
+            message={error}
+            setMessage={setError}
             subtitle={
                 <>
-                    Already have an account?
-                    <Button link to="/auth/login">Login</Button>
+                    Already have an account? <Button link to="/auth/login">Login</Button>
                 </>
             }>
             <Input
@@ -32,7 +42,7 @@ export const Register = () => {
                 text='Password'
                 onChange={e => setPassword(e.target.value)} />
             <div className={classes.actions}>
-                <Button type={["color"]} onClick={() => onRegister(username, password)}>Sign Up</Button>
+                <Button type={["color"]} onClick={onLoginHandler}>Sign Up</Button>
             </div>
         </AuthPage>
     )

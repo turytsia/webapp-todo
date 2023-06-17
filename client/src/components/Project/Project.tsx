@@ -28,6 +28,7 @@ export type projectType = {
     created_at: string
     updated_at: string
     project_tasks: projectTaskType[]
+    color: string
 }
 
 type propsType = {
@@ -55,6 +56,7 @@ const initialProject: projectType = {
     created_at: "",
     updated_at: "",
     project_tasks: [],
+    color: ""
 }
 
 /**

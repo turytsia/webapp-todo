@@ -16,6 +16,7 @@ import Project, { projectTaskType } from "./components/Project/Project"
 import ProjectTask, { taskType } from "./components/ProjectTask/ProjectTask"
 import useFetch from "./hooks/use-fetch";
 import { projectType } from "./components/ProjectList/ProjectList";
+import { AxiosError } from "axios";
 
 enum loadingActionType {
   projects,
@@ -35,7 +36,7 @@ type loadingState = {
 }
 
 const initialLoading: loadingState = {
-  projects: true,
+  projects: false,
   project: true,
   projectTask: true
 }
@@ -54,10 +55,7 @@ const loadingReducer = (state: loadingState, action: loadingAction) => {
 const Routes = () => {
   const {
     isAuth,
-    token,
-    onLogin,
     onLogout,
-    onRegister
   } = useContext(AuthContext)
 
   const navigate = useNavigate()
@@ -71,10 +69,14 @@ const Routes = () => {
     try {
       dispatch({ type: loadingActionType.projects, payload: true })
       const { projects } = await get('/projects/')
-      dispatch({ type: loadingActionType.projects, payload: false })
       setProjects(projects)
     } catch (error) {
-      console.log(error)
+      const err = error as AxiosError
+      if (err.response?.status === 401) {
+        // onLogout()
+      }
+    } finally {
+      dispatch({ type: loadingActionType.projects, payload: false })
     }
   }
 
@@ -188,7 +190,7 @@ const Routes = () => {
     }
   }
 
-  const deleteTask = async ( projectID: number, projectTaskID: number, taskID: number) => {
+  const deleteTask = async (projectID: number, projectTaskID: number, taskID: number) => {
     if (typeof projectID === 'undefined' ||
       typeof projectTaskID === 'undefined' ||
       typeof taskID === 'undefined') return
@@ -200,15 +202,18 @@ const Routes = () => {
     }
   }
 
-  useEffect(() => {
+  useEffect(() => { 
     fetchProjects()
-  }, [])
+  }, [isAuth])
 
   return (
     <Container>
       <Header></Header>
       <Main>
-        <AsideMenu isLoading={loading.projects} isAuth={isAuth} projects={projects} />
+        <AsideMenu
+          isLoading={loading.projects}
+          isAuth={isAuth}
+          projects={projects} />
         <Router>
           <Route path="/" element={
             <WithToken>

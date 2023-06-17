@@ -4,17 +4,33 @@ import Input from '../Input/Input'
 import Button from '../Button/Button'
 import AuthPage from '../AuthPage/AuthPage'
 import { AuthContext } from '../../context/AuthProvider'
+import { useNavigate } from 'react-router-dom'
 
 const Login = () => {
 
   const { onLogin } = useContext(AuthContext)
+
+  const navigate = useNavigate()
+
   const [username, setUsername] = useState<string>("")
   const [password, setPassword] = useState<string>("")
+  const [error, setError] = useState<string>("")
 
+
+  const onLoginHandler = async () => {
+    const error = await onLogin(username, password)
+    if (error) {
+      setError(error.message)
+    } else {
+      navigate('/')
+    }
+  }
 
   return (
     <AuthPage
       title='Login'
+      message={error}
+      setMessage={setError}
       subtitle={
         <>
           Doesn't have an account yet?
@@ -33,7 +49,7 @@ const Login = () => {
         text='Password'
         onChange={e => setPassword(e.target.value)}/>
       <div className={classes.actions}>
-        <Button type={["color"]} onClick={() => onLogin(username, password)}>Login</Button>
+        <Button type={["color"]} onClick={onLoginHandler}>Login</Button>
       </div>
     </AuthPage>
   )
